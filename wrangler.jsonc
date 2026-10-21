@@ -1,0 +1,15 @@
+{
+	// Must match the Worker name in the Cloudflare dashboard.
+	"name": "strandcontrol-website",
+	// Workers compatibility date for this assets-only config.
+	"compatibility_date": "2026-10-21",
+	"assets": {
+		// Static site lives at the repo root. No Worker script.
+		"directory": "./",
+		// Unmatched paths return 404.html with status 404.
+		"not_found_handling": "404-page",
+		// /dartopia/ (and /privacy/, /support/) serve that folder's index.html.
+		// Requests without the trailing slash redirect to the slash form.
+		"html_handling": "auto-trailing-slash"
+	}
+}
