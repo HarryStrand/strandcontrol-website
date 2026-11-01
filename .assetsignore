@@ -10,7 +10,6 @@
 /wrangler.toml
 /src
 /functions
-/logos
 
 .git
 .wrangler
