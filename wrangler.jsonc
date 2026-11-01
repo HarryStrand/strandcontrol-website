@@ -9,13 +9,32 @@
 		"directory": "./",
 		"binding": "ASSETS",
 		// /api/* runs the Worker. Every other path is served from assets.
-		"run_worker_first": ["/api/*"],
+		// /support is included so the Worker can stamp TURNSTILE_SITE_KEY onto the form.
+		"run_worker_first": ["/api/*", "/support", "/support/", "/support/index.html"],
 		// Unmatched paths return 404.html with status 404.
 		"not_found_handling": "404-page",
 		// /dartopia/ (and /privacy/, /support/) serve that folder's index.html.
 		// Requests without the trailing slash redirect to the slash form.
 		"html_handling": "auto-trailing-slash"
 	},
+	// Public Turnstile site key. The Worker copies this onto the support form.
+	// This is Cloudflare's always-pass test sitekey. Replace it with the real
+	// widget sitekey when the widget is created. Not a secret.
+	"vars": {
+		"TURNSTILE_SITE_KEY": "1x00000000000000000000AA"
+	},
+	// Per-IP limit for POST /api/support. namespace_id must be unique in the account.
+	// The window is 60 seconds; that is the longest period this binding allows.
+	"ratelimits": [
+		{
+			"name": "SUPPORT_RATE_LIMITER",
+			"namespace_id": "87021",
+			"simple": {
+				"limit": 10,
+				"period": 60
+			}
+		}
+	],
 	"observability": {
 		"enabled": true,
 		"logs": {

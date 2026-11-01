@@ -145,6 +145,22 @@ nav a[aria-current="page"] {
   padding: 4.5rem 0 3rem;
 }
 
+.hero .wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero .wordmark,
+.hero .lede {
+  margin-inline: auto;
+}
+
+.hero .meta-row {
+  justify-content: center;
+}
+
 .hero h1,
 .page-title {
   margin: 0 0 0.85rem;
@@ -328,7 +344,7 @@ main > .section:first-child {
 }
 
 .contact-form {
-  --field-label: 16rem;
+  --field-label: 17.5rem;
   --field-gap: 2rem;
   display: flex;
   flex-direction: column;
@@ -389,9 +405,14 @@ main > .section:first-child {
   min-height: 12rem;
 }
 
+.turnstile-row,
 .contact-form .field-actions {
   display: flex;
   padding-left: calc(var(--field-label) + var(--field-gap));
+}
+
+.turnstile-row {
+  min-height: 65px;
 }
 
 .contact-form button {
@@ -484,6 +505,7 @@ main > .section:first-child {
     padding-top: 0;
   }
 
+  .turnstile-row,
   .contact-form .field-actions,
   .form-status {
     padding-left: 0;

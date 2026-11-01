@@ -15,10 +15,38 @@
 
   applyTopicFromUrl();
 
+  let turnstileWidgetId;
+
+  function renderTurnstile() {
+    const container = document.getElementById("support-turnstile");
+    if (!container || !window.turnstile || turnstileWidgetId !== undefined) return;
+    const sitekey = container.getAttribute("data-sitekey");
+    if (!sitekey) return;
+    turnstileWidgetId = window.turnstile.render(container, {
+      sitekey,
+      action: "support",
+    });
+  }
+
+  window.onSupportTurnstileLoad = renderTurnstile;
+  if (window.turnstile) renderTurnstile();
+
+  function turnstileToken() {
+    if (turnstileWidgetId === undefined || !window.turnstile) return "";
+    return window.turnstile.getResponse(turnstileWidgetId) || "";
+  }
+
+  function resetTurnstile() {
+    if (turnstileWidgetId === undefined || !window.turnstile) return;
+    window.turnstile.reset(turnstileWidgetId);
+  }
+
   const messages = {
     ok: "Thanks. We received your message.",
     missing: "Please fill in every field.",
     invalid: "Please check your email and try again.",
+    turnstile: "The spam check did not pass. Please try again.",
+    rate: "Too many messages were sent from this network. Please wait a minute and try again.",
     send: "The message could not be sent. Try again in a few minutes.",
     "not-configured": "Support mail is not set up on this published site yet.",
     offline: "This preview cannot send mail. Publish to Cloudflare and add the WEB3FORMS_ACCESS_KEY secret first.",
@@ -41,6 +69,7 @@
       subject: form.subject.value,
       message: form.message.value,
       company: form.company.value,
+      "cf-turnstile-response": turnstileToken(),
     };
 
     try {
@@ -66,6 +95,7 @@
       status.textContent = messages.network;
       status.classList.add("is-error");
     } finally {
+      resetTurnstile();
       button.disabled = false;
     }
   });

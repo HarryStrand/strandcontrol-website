@@ -31,6 +31,104 @@ function looksLikePhone(value) {
   return value.length <= 40 && !/[\u0000-\u001F\u007F]/.test(value);
 }
 
+// Cloudflare's always-pass test sitekey. Localhost is accepted only while this
+// placeholder is still configured. A real sitekey must not honor local hosts.
+const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA";
+const TURNSTILE_ACTION = "support";
+
+function turnstileHostnameAllowed(hostname, env) {
+  if (hostname === "strandcontrol.com" || hostname === "www.strandcontrol.com") return true;
+  if (typeof hostname === "string" && hostname.endsWith(".workers.dev")) return true;
+  const siteKey = readField(env.TURNSTILE_SITE_KEY);
+  return (
+    siteKey === TURNSTILE_TEST_SITE_KEY &&
+    (hostname === "localhost" || hostname === "127.0.0.1")
+  );
+}
+
+async function enforceSupportRateLimit(request, env) {
+  if (!env.SUPPORT_RATE_LIMITER) return null;
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  try {
+    const { success } = await env.SUPPORT_RATE_LIMITER.limit({ key: `support:${ip}` });
+    if (!success) return json({ ok: false, error: "rate" }, 429);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        message: "support rate limit check failed",
+        error: error instanceof Error ? error.name : "Error",
+      }),
+    );
+  }
+  return null;
+}
+
+// Returns a Response when the submission must be rejected, or null to continue.
+// A missing TURNSTILE_SECRET_KEY skips the check so the form still sends during rollout.
+async function verifyTurnstile(request, env, token) {
+  const secret = readField(env.TURNSTILE_SECRET_KEY);
+  if (!secret) {
+    console.warn(
+      JSON.stringify({
+        message: "TURNSTILE_SECRET_KEY is not set; skipping Turnstile verification",
+      }),
+    );
+    return null;
+  }
+
+  if (typeof token !== "string" || token.length === 0 || token.length > 2048) {
+    return json({ ok: false, error: "turnstile" }, 403);
+  }
+
+  let result;
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      signal: AbortSignal.timeout(10_000),
+      body: new URLSearchParams({
+        secret,
+        response: token,
+        remoteip: request.headers.get("CF-Connecting-IP") ?? "",
+      }),
+    });
+    if (!res.ok) throw new Error("siteverify");
+    result = await res.json();
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        message: "turnstile siteverify failed",
+        error: error instanceof Error ? error.name : "Error",
+      }),
+    );
+    return json({ ok: false, error: "turnstile" }, 403);
+  }
+
+  const testingKey = result?.metadata?.result_with_testing_key === true;
+  if (testingKey) {
+    if (result.success === true && readField(env.TURNSTILE_SITE_KEY) === TURNSTILE_TEST_SITE_KEY) {
+      return null;
+    }
+    return json({ ok: false, error: "turnstile" }, 403);
+  }
+
+  if (
+    result?.success !== true ||
+    result.action !== TURNSTILE_ACTION ||
+    !turnstileHostnameAllowed(result.hostname, env)
+  ) {
+    console.error(
+      JSON.stringify({
+        message: "turnstile rejected",
+        errorCodes: Array.isArray(result?.["error-codes"]) ? result["error-codes"] : [],
+      }),
+    );
+    return json({ ok: false, error: "turnstile" }, 403);
+  }
+
+  return null;
+}
+
 // Same checks as the former Pages Function. The access key is consulted
 // only after the body is valid, so a missing secret still returns field
 // errors, and 503 is reserved for a submission that would otherwise be sent.
@@ -55,6 +153,9 @@ async function handleSupportPost(request, env) {
   if (!data || typeof data !== "object" || Array.isArray(data)) {
     return json({ ok: false, error: "invalid" }, 400);
   }
+
+  const limited = await enforceSupportRateLimit(request, env);
+  if (limited) return limited;
 
   if (readField(data.company)) {
     return json({ ok: true });
@@ -81,6 +182,9 @@ async function handleSupportPost(request, env) {
   ) {
     return json({ ok: false, error: "invalid" }, 400);
   }
+
+  const turnstile = await verifyTurnstile(request, env, readField(data["cf-turnstile-response"]));
+  if (turnstile) return turnstile;
 
   if (!env.WEB3FORMS_ACCESS_KEY) {
     return json({ ok: false, error: "not-configured" }, 503);
@@ -158,6 +262,23 @@ export default {
       return methodNotAllowed();
     }
 
-    return env.ASSETS.fetch(request);
+    return serveAsset(request, env);
   },
 };
+
+async function serveAsset(request, env) {
+  const response = await env.ASSETS.fetch(request);
+  const path = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
+  if (path !== "/support") return response;
+  const contentType = response.headers.get("content-type") || "";
+  if (!response.ok || !contentType.includes("text/html")) return response;
+  const siteKey = readField(env.TURNSTILE_SITE_KEY);
+  if (!siteKey) return response;
+  return new HTMLRewriter()
+    .on("#support-turnstile", {
+      element(element) {
+        element.setAttribute("data-sitekey", siteKey);
+      },
+    })
+    .transform(response);
+}
