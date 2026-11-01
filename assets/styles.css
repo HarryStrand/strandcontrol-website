@@ -328,6 +328,8 @@ main > .section:first-child {
 }
 
 .contact-form {
+  --field-label: 16rem;
+  --field-gap: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -340,7 +342,7 @@ main > .section:first-child {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 2rem;
+  gap: var(--field-gap);
 }
 
 .contact-form .field.field-message {
@@ -348,7 +350,7 @@ main > .section:first-child {
 }
 
 .contact-form .field label {
-  flex: 0 0 8rem;
+  flex: 0 0 var(--field-label);
   margin: 0;
   font-weight: 600;
 }
@@ -359,7 +361,8 @@ main > .section:first-child {
 }
 
 .contact-form .field input,
-.contact-form .field textarea {
+.contact-form .field textarea,
+.contact-form .field select {
   display: block;
   flex: 1 1 auto;
   width: 100%;
@@ -375,7 +378,8 @@ main > .section:first-child {
 }
 
 .contact-form input:focus,
-.contact-form textarea:focus {
+.contact-form textarea:focus,
+.contact-form select:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
@@ -387,7 +391,7 @@ main > .section:first-child {
 
 .contact-form .field-actions {
   display: flex;
-  padding-left: 10rem;
+  padding-left: calc(var(--field-label) + var(--field-gap));
 }
 
 .contact-form button {
@@ -425,7 +429,7 @@ main > .section:first-child {
 .form-status {
   min-height: 1.4em;
   margin: 0;
-  padding-left: 10rem;
+  padding-left: calc(var(--field-label) + var(--field-gap));
 }
 
 .form-status.is-ok {

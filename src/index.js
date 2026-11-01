@@ -13,6 +13,24 @@ function looksLikeEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+// Labels must match the options in support/index.html, in the same order.
+const SUPPORT_TOPICS = new Map([
+  ["general", "General feedback"],
+  ["help", "Help using the product"],
+  ["problem", "Problem with the product"],
+  ["improvement", "Suggest an improvement"],
+  ["feature", "Request a new feature"],
+  ["comments", "Comments about the product"],
+  ["privacy", "Privacy question or concern"],
+  ["other", "Other"],
+]);
+
+function looksLikePhone(value) {
+  // Optional and free-form (extensions, international numbers). Cap the length
+  // and reject control characters so the value stays a single email line.
+  return value.length <= 40 && !/[\u0000-\u001F\u007F]/.test(value);
+}
+
 // Same checks as the former Pages Function. The access key is consulted
 // only after the body is valid, so a missing secret still returns field
 // errors, and 503 is reserved for a submission that would otherwise be sent.
@@ -44,13 +62,23 @@ async function handleSupportPost(request, env) {
 
   const name = readField(data.name);
   const email = readField(data.email);
+  const phone = readField(data.phone);
+  const topic = readField(data.topic);
   const subject = readField(data.subject);
   const message = readField(data.message);
+  const topicLabel = SUPPORT_TOPICS.get(topic);
 
-  if (!name || !email || !subject || !message) {
+  if (!name || !email || !topic || !subject || !message) {
     return json({ ok: false, error: "missing" }, 400);
   }
-  if (!looksLikeEmail(email) || name.length > 200 || subject.length > 200 || message.length > 8000) {
+  if (
+    !looksLikeEmail(email) ||
+    !topicLabel ||
+    (phone && !looksLikePhone(phone)) ||
+    name.length > 200 ||
+    subject.length > 200 ||
+    message.length > 8000
+  ) {
     return json({ ok: false, error: "invalid" }, 400);
   }
 
@@ -70,7 +98,9 @@ async function handleSupportPost(request, env) {
         access_key: env.WEB3FORMS_ACCESS_KEY,
         name,
         email,
-        subject,
+        ...(phone ? { phone } : {}),
+        topic: topicLabel,
+        subject: `${topicLabel}: ${subject}`,
         message,
       }),
     });

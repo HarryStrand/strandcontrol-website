@@ -46,6 +46,23 @@
         <input type="email" id="email" name="email" maxlength="200" required autocomplete="email">
       </div>
       <div class="field">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" name="phone" maxlength="40" autocomplete="tel">
+      </div>
+      <div class="field">
+        <label for="topic">What can we help with?</label>
+        <select id="topic" name="topic" required>
+          <option value="general" selected>General feedback</option>
+          <option value="help">Help using the product</option>
+          <option value="problem">Problem with the product</option>
+          <option value="improvement">Suggest an improvement</option>
+          <option value="feature">Request a new feature</option>
+          <option value="comments">Comments about the product</option>
+          <option value="privacy">Privacy question or concern</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field">
         <label for="subject">Subject</label>
         <input type="text" id="subject" name="subject" maxlength="200" required>
       </div>

@@ -3,6 +3,18 @@
   const status = document.getElementById("support-status");
   if (!form || !status) return;
 
+  function applyTopicFromUrl() {
+    const select = form.topic;
+    if (!select) return;
+    const requested = new URLSearchParams(window.location.search).get("topic");
+    if (!requested) return;
+    const value = requested.trim();
+    const known = Array.from(select.options).some((option) => option.value === value);
+    if (known) select.value = value;
+  }
+
+  applyTopicFromUrl();
+
   const messages = {
     ok: "Thanks. We received your message.",
     missing: "Please fill in every field.",
@@ -24,6 +36,8 @@
     const payload = {
       name: form.name.value,
       email: form.email.value,
+      phone: form.phone.value,
+      topic: form.topic.value,
       subject: form.subject.value,
       message: form.message.value,
       company: form.company.value,
@@ -38,6 +52,7 @@
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
         form.reset();
+        applyTopicFromUrl();
         status.textContent = messages.ok;
         status.classList.add("is-ok");
       } else if (res.status === 404 || res.status === 405 || res.status === 501) {
