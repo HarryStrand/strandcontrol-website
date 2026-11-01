@@ -8,6 +8,9 @@
 /wrangler.jsonc
 /wrangler.json
 /wrangler.toml
+/src
+/functions
+/logos
 
 .git
 .wrangler
@@ -15,3 +18,7 @@ node_modules
 .DS_Store
 .vscode
 .idea
+.dev.vars
+.dev.vars.*
+.env
+.env.*
