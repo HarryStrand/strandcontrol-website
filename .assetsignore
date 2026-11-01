@@ -1,0 +1,24 @@
+# Repo and tooling files. Not part of the public site.
+# _headers and _redirects are already excluded by Wrangler and must stay
+# out of this list so header rules are still applied.
+
+/README.md
+/.gitignore
+/.assetsignore
+/wrangler.jsonc
+/wrangler.json
+/wrangler.toml
+/src
+/functions
+/logos
+
+.git
+.wrangler
+node_modules
+.DS_Store
+.vscode
+.idea
+.dev.vars
+.dev.vars.*
+.env
+.env.*

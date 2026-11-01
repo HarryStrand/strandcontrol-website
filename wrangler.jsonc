@@ -1,0 +1,30 @@
+{
+	// Must match the Worker name in the Cloudflare dashboard.
+	"name": "strandcontrol-website",
+	"main": "src/index.js",
+	// Kept aligned with the production assets config from main.
+	"compatibility_date": "2026-10-21",
+	"assets": {
+		// Static site lives at the repo root. No build step.
+		"directory": "./",
+		"binding": "ASSETS",
+		// /api/* runs the Worker. Every other path is served from assets.
+		"run_worker_first": ["/api/*"],
+		// Unmatched paths return 404.html with status 404.
+		"not_found_handling": "404-page",
+		// /dartopia/ (and /privacy/, /support/) serve that folder's index.html.
+		// Requests without the trailing slash redirect to the slash form.
+		"html_handling": "auto-trailing-slash"
+	},
+	"observability": {
+		"enabled": true,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1
+		},
+		"traces": {
+			"enabled": true,
+			"head_sampling_rate": 1
+		}
+	}
+}
