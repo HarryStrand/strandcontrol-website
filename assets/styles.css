@@ -297,9 +297,12 @@ main > .section:first-child {
   font-size: 0.95rem;
 }
 
-.policy,
-.support {
+.policy {
   padding-bottom: 4rem;
+}
+
+.support {
+  padding-bottom: 1.25rem;
 }
 
 .support .lede {
@@ -411,8 +414,11 @@ main > .section:first-child {
   padding-left: calc(var(--field-label) + var(--field-gap));
 }
 
-.turnstile-row {
-  min-height: 65px;
+/* Body line-height was adding a strut under the 65px widget. */
+.turnstile-row,
+#support-turnstile,
+#support-turnstile > div {
+  line-height: 0;
 }
 
 .contact-form button {
@@ -448,9 +454,12 @@ main > .section:first-child {
 }
 
 .form-status {
-  min-height: 1.4em;
   margin: 0;
   padding-left: calc(var(--field-label) + var(--field-gap));
+}
+
+.form-status:empty {
+  display: none;
 }
 
 .form-status.is-ok {
