@@ -31,14 +31,15 @@ function looksLikePhone(value) {
   return value.length <= 40 && !/[\u0000-\u001F\u007F]/.test(value);
 }
 
-// Cloudflare's always-pass test sitekey. Localhost is accepted only while this
-// placeholder is still configured. A real sitekey must not honor local hosts.
+// Cloudflare's always-pass test sitekey. Production does not use it.
+// localhost is accepted only when wrangler dev overrides TURNSTILE_SITE_KEY
+// with this value (see .dev.vars.example). The real site key never honors local hosts.
 const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA";
 const TURNSTILE_ACTION = "support";
+const TURNSTILE_HOSTS = new Set(["strandcontrol.com", "strandcontrol.workers.dev"]);
 
 function turnstileHostnameAllowed(hostname, env) {
-  if (hostname === "strandcontrol.com" || hostname === "www.strandcontrol.com") return true;
-  if (typeof hostname === "string" && hostname.endsWith(".workers.dev")) return true;
+  if (TURNSTILE_HOSTS.has(hostname)) return true;
   const siteKey = readField(env.TURNSTILE_SITE_KEY);
   return (
     siteKey === TURNSTILE_TEST_SITE_KEY &&

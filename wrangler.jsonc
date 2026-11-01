@@ -18,10 +18,9 @@
 		"html_handling": "auto-trailing-slash"
 	},
 	// Public Turnstile site key. The Worker copies this onto the support form.
-	// This is Cloudflare's always-pass test sitekey. Replace it with the real
-	// widget sitekey when the widget is created. Not a secret.
+	// Not a secret. Local wrangler dev can override it from .dev.vars.
 	"vars": {
-		"TURNSTILE_SITE_KEY": "1x00000000000000000000AA"
+		"TURNSTILE_SITE_KEY": "0x4AAAAAAFvu9R7-bXM_yPjL"
 	},
 	// Per-IP limit for POST /api/support. namespace_id must be unique in the account.
 	// The window is 60 seconds; that is the longest period this binding allows.
