@@ -1,0 +1,4 @@
+# Copy to .dev.vars (gitignored) for local wrangler dev only.
+# This overrides TURNSTILE_SITE_KEY from wrangler.jsonc on your machine.
+# The test sitekey works on localhost. Production keeps the real site key.
+TURNSTILE_SITE_KEY=1x00000000000000000000AA

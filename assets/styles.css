@@ -145,6 +145,22 @@ nav a[aria-current="page"] {
   padding: 4.5rem 0 3rem;
 }
 
+.hero .wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero .wordmark,
+.hero .lede {
+  margin-inline: auto;
+}
+
+.hero .meta-row {
+  justify-content: center;
+}
+
 .hero h1,
 .page-title {
   margin: 0 0 0.85rem;
@@ -281,9 +297,12 @@ main > .section:first-child {
   font-size: 0.95rem;
 }
 
-.policy,
-.support {
+.policy {
   padding-bottom: 4rem;
+}
+
+.support {
+  padding-bottom: 1.25rem;
 }
 
 .support .lede {
@@ -328,6 +347,8 @@ main > .section:first-child {
 }
 
 .contact-form {
+  --field-label: 17.5rem;
+  --field-gap: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -340,7 +361,7 @@ main > .section:first-child {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 2rem;
+  gap: var(--field-gap);
 }
 
 .contact-form .field.field-message {
@@ -348,7 +369,7 @@ main > .section:first-child {
 }
 
 .contact-form .field label {
-  flex: 0 0 8rem;
+  flex: 0 0 var(--field-label);
   margin: 0;
   font-weight: 600;
 }
@@ -359,7 +380,8 @@ main > .section:first-child {
 }
 
 .contact-form .field input,
-.contact-form .field textarea {
+.contact-form .field textarea,
+.contact-form .field select {
   display: block;
   flex: 1 1 auto;
   width: 100%;
@@ -375,7 +397,8 @@ main > .section:first-child {
 }
 
 .contact-form input:focus,
-.contact-form textarea:focus {
+.contact-form textarea:focus,
+.contact-form select:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
@@ -385,9 +408,17 @@ main > .section:first-child {
   min-height: 12rem;
 }
 
+.turnstile-row,
 .contact-form .field-actions {
   display: flex;
-  padding-left: 10rem;
+  padding-left: calc(var(--field-label) + var(--field-gap));
+}
+
+/* Body line-height was adding a strut under the 65px widget. */
+.turnstile-row,
+#support-turnstile,
+#support-turnstile > div {
+  line-height: 0;
 }
 
 .contact-form button {
@@ -423,9 +454,12 @@ main > .section:first-child {
 }
 
 .form-status {
-  min-height: 1.4em;
   margin: 0;
-  padding-left: 10rem;
+  padding-left: calc(var(--field-label) + var(--field-gap));
+}
+
+.form-status:empty {
+  display: none;
 }
 
 .form-status.is-ok {
@@ -480,6 +514,7 @@ main > .section:first-child {
     padding-top: 0;
   }
 
+  .turnstile-row,
   .contact-form .field-actions,
   .form-status {
     padding-left: 0;
