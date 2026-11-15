@@ -19,6 +19,10 @@ const ATTACHMENT_EXTENSIONS = new Set([
   "zip",
 ]);
 
+export function attachmentsEnabled(value) {
+  return String(value ?? "").trim().toLowerCase() === "true";
+}
+
 export function attachmentExtension(name) {
   const base = String(name ?? "").split(/[/\\]/).pop() ?? "";
   const dot = base.lastIndexOf(".");

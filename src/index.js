@@ -1,6 +1,7 @@
 import {
   attachmentError,
   attachmentFilename,
+  attachmentsEnabled,
   MAX_ATTACHMENT_BYTES,
   MAX_ATTACHMENTS,
   supportThanks,
@@ -292,7 +293,7 @@ async function handleSupportPost(request, env) {
   ) {
     return json({ ok: false, error: "invalid" }, 400);
   }
-  if (attachmentError(files)) {
+  if (attachmentError(attachmentsEnabled(env.SUPPORT_ATTACHMENTS) ? files : [])) {
     return json({ ok: false, error: "attachment" }, 400);
   }
 
@@ -308,7 +309,7 @@ async function handleSupportPost(request, env) {
     res = await submitSupportMessage(
       env,
       { name, email, phone, topicLabel, subject, message },
-      files,
+      attachmentsEnabled(env.SUPPORT_ATTACHMENTS) ? files : [],
     );
   } catch (error) {
     console.error(
@@ -338,6 +339,9 @@ async function handleSupportPost(request, env) {
   }
 
   await sendSupportThanks(env, name, email);
+  if (!attachmentsEnabled(env.SUPPORT_ATTACHMENTS) && files.length > 0) {
+    return json({ ok: true, attachments: "unavailable" });
+  }
   return json({ ok: true });
 }
 
@@ -375,13 +379,24 @@ async function serveAsset(request, env) {
   if (path !== "/support") return response;
   const contentType = response.headers.get("content-type") || "";
   if (!response.ok || !contentType.includes("text/html")) return response;
+
+  let rewriter = new HTMLRewriter();
   const siteKey = readField(env.TURNSTILE_SITE_KEY);
-  if (!siteKey) return response;
-  return new HTMLRewriter()
-    .on("#support-turnstile", {
+  if (siteKey) {
+    rewriter = rewriter.on("#support-turnstile", {
       element(element) {
         element.setAttribute("data-sitekey", siteKey);
       },
-    })
-    .transform(response);
+    });
+  }
+  // The file field ships hidden. Web3Forms only accepts attachments on Pro,
+  // and the access key cannot be asked which plan it is on.
+  if (attachmentsEnabled(env.SUPPORT_ATTACHMENTS)) {
+    rewriter = rewriter.on("#support-attachments", {
+      element(element) {
+        element.removeAttribute("hidden");
+      },
+    });
+  }
+  return rewriter.transform(response);
 }

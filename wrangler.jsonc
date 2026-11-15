@@ -20,7 +20,10 @@
 	// Public Turnstile site key. The Worker copies this onto the support form.
 	// Not a secret. Local wrangler dev can override it from .dev.vars.
 	"vars": {
-		"TURNSTILE_SITE_KEY": "0x4AAAAAAFvu9R7-bXM_yPjL"
+		"TURNSTILE_SITE_KEY": "0x4AAAAAAFvu9R7-bXM_yPjL",
+		// Web3Forms file uploads require the Pro plan. There is no API to ask
+		// the access key which plan it is on, so this switch shows the file field.
+		"SUPPORT_ATTACHMENTS": "false"
 	},
 	// Thank-you mail after a support message is accepted.
 	// The sender must match SUPPORT_FROM_EMAIL in src/index.js.

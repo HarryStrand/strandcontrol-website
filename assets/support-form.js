@@ -52,6 +52,7 @@
     "not-configured": "Support mail is not set up on this published site yet.",
     offline: "This preview cannot send mail. Publish to Cloudflare and add the WEB3FORMS_ACCESS_KEY secret first.",
     network: "The message could not be sent. Try again in a few minutes.",
+    attachmentsUnavailable: "Your message was sent. File attachments are not available.",
   };
 
   // Keep in step with src/support-request.mjs.
@@ -202,7 +203,7 @@
       if (res.ok && data.ok) {
         form.reset();
         applyTopicFromUrl();
-        status.textContent = messages.ok;
+        status.textContent = data.attachments === "unavailable" ? messages.attachmentsUnavailable : messages.ok;
         status.classList.add("is-ok");
       } else if (res.status === 404 || res.status === 405 || res.status === 501) {
         status.textContent = messages.offline;

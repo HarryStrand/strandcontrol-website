@@ -375,6 +375,10 @@ main > .section:first-child {
   align-items: flex-start;
 }
 
+.contact-form .field.field-attachment[hidden] {
+  display: none;
+}
+
 .contact-form .field label {
   flex: 0 0 var(--field-label);
   margin: 0;

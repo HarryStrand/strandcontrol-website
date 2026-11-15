@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   attachmentError,
   attachmentFilename,
+  attachmentsEnabled,
   MAX_ATTACHMENT_BYTES,
   MAX_ATTACHMENTS,
   supportThanks,
@@ -40,6 +41,14 @@ test("keeps a safe attachment filename", () => {
   assert.equal(attachmentFilename("../../board shot.png", 0), "board shot.png");
   assert.equal(attachmentFilename("..\r\nname.log", 1), "name.log");
   assert.equal(attachmentFilename("", 2), "attachment-3");
+});
+
+test("attachments stay off unless the switch is exactly true", () => {
+  assert.equal(attachmentsEnabled("true"), true);
+  assert.equal(attachmentsEnabled(" TRUE "), true);
+  assert.equal(attachmentsEnabled("false"), false);
+  assert.equal(attachmentsEnabled(""), false);
+  assert.equal(attachmentsEnabled(undefined), false);
 });
 
 test("thank-you copy thanks them and does not treat the name as HTML", () => {
