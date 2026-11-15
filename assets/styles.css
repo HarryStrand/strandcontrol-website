@@ -309,6 +309,12 @@ main > .section:first-child {
   max-width: none;
 }
 
+.privacy-note {
+  margin: 1rem 0 0;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
 .policy h1,
 .support h1 {
   margin-top: 2.75rem;
@@ -364,7 +370,8 @@ main > .section:first-child {
   gap: var(--field-gap);
 }
 
-.contact-form .field.field-message {
+.contact-form .field.field-message,
+.contact-form .field.field-attachment {
   align-items: flex-start;
 }
 
@@ -374,9 +381,92 @@ main > .section:first-child {
   font-weight: 600;
 }
 
-.contact-form .field.field-message label {
+.contact-form .field.field-message label,
+.contact-form .field.field-attachment label {
   padding-top: 0.9rem;
   align-self: flex-start;
+}
+
+.contact-form .field-control {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.contact-form .field-hint {
+  margin: 0.45rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+}
+
+.contact-form .field input[type="file"] {
+  color: transparent;
+}
+
+.contact-form input[type="file"]::file-selector-button {
+  color: var(--ink);
+}
+
+.contact-form .field input[type="file"]:disabled {
+  cursor: not-allowed;
+}
+
+.contact-form input[type="file"]:disabled::file-selector-button {
+  color: var(--ink-soft);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.attachment-list {
+  list-style: none;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.attachment-list[hidden] {
+  display: none;
+}
+
+.attachment-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.attachment-list li span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-form .attachment-remove {
+  flex: 0 0 auto;
+  width: 1.75rem;
+  height: 1.75rem;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.contact-form .attachment-remove:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.contact-form .attachment-remove:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .contact-form .field input,
@@ -502,14 +592,16 @@ main > .section:first-child {
   }
 
   .contact-form .field,
-  .contact-form .field-message {
+  .contact-form .field-message,
+  .contact-form .field-attachment {
     flex-direction: column;
     align-items: stretch;
     gap: 0.4rem;
   }
 
   .contact-form .field label,
-  .contact-form .field-message label {
+  .contact-form .field-message label,
+  .contact-form .field-attachment label {
     flex-basis: auto;
     padding-top: 0;
   }

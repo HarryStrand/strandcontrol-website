@@ -1,3 +1,16 @@
+import {
+  attachmentError,
+  attachmentFilename,
+  MAX_ATTACHMENT_BYTES,
+  MAX_ATTACHMENTS,
+  supportThanks,
+} from "./support-request.mjs";
+
+// Multipart overhead sits on top of the file bytes. Reject anything larger
+// before formData() reads it into memory.
+const MAX_SUPPORT_BODY_BYTES = MAX_ATTACHMENTS * MAX_ATTACHMENT_BYTES + 1024 * 1024;
+const SUPPORT_FROM_EMAIL = "support@strandcontrol.com";
+
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -130,26 +143,122 @@ async function verifyTurnstile(request, env, token) {
   return null;
 }
 
+function isUploadedFile(value) {
+  return typeof File !== "undefined" && value instanceof File;
+}
+
+// A cleared file input can arrive as an empty File. Ignore those.
+function isChosenFile(value) {
+  return isUploadedFile(value) && (value.size > 0 || value.name !== "");
+}
+
+async function readSupportSubmission(request) {
+  const contentLength = Number(request.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > MAX_SUPPORT_BODY_BYTES) {
+    return { error: json({ ok: false, error: "attachment" }, 400) };
+  }
+
+  const contentType = request.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    try {
+      const data = await request.json();
+      return { data, files: [] };
+    } catch {
+      return { error: json({ ok: false, error: "invalid" }, 400) };
+    }
+  }
+
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return { error: json({ ok: false, error: "invalid" }, 400) };
+  }
+
+  const data = {};
+  const files = [];
+  for (const [key, value] of form.entries()) {
+    if (isUploadedFile(value)) {
+      if (isChosenFile(value)) files.push(value);
+      continue;
+    }
+    if (data[key] === undefined) data[key] = value;
+  }
+  return { data, files };
+}
+
+async function submitSupportMessage(env, fields, files) {
+  const payload = {
+    access_key: env.WEB3FORMS_ACCESS_KEY,
+    name: fields.name,
+    email: fields.email,
+    ...(fields.phone ? { phone: fields.phone } : {}),
+    topic: fields.topicLabel,
+    subject: `${fields.topicLabel}: ${fields.subject}`,
+    message: fields.message,
+  };
+
+  if (files.length === 0) {
+    return fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+  }
+
+  // No Content-Type header: fetch sets the multipart boundary itself.
+  const form = new FormData();
+  for (const [key, value] of Object.entries(payload)) form.append(key, value);
+  files.forEach((file, index) => {
+    const field = index === 0 ? "attachment" : `attachment_${index + 1}`;
+    form.append(field, file, attachmentFilename(file.name, index));
+  });
+  return fetch("https://api.web3forms.com/submit", {
+    method: "POST",
+    headers: { Accept: "application/json" },
+    body: form,
+  });
+}
+
+// Sent after Web3Forms accepts the message. A failure here is logged and does
+// not turn a delivered support request into an error the visitor retries.
+async function sendSupportThanks(env, name, email) {
+  if (!env.EMAIL) {
+    console.warn(JSON.stringify({ message: "support thank-you skipped; EMAIL binding is missing" }));
+    return;
+  }
+
+  const message = supportThanks(name);
+  try {
+    await env.EMAIL.send({
+      to: email,
+      from: { email: SUPPORT_FROM_EMAIL, name: "StrandControl" },
+      replyTo: { email: SUPPORT_FROM_EMAIL, name: "StrandControl" },
+      subject: message.subject,
+      text: message.text,
+      html: message.html,
+    });
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        message: "support thank-you failed",
+        error: error instanceof Error ? error.name : "Error",
+        code: error && typeof error === "object" && "code" in error ? error.code : undefined,
+      }),
+    );
+  }
+}
+
 // Same checks as the former Pages Function. The access key is consulted
 // only after the body is valid, so a missing secret still returns field
 // errors, and 503 is reserved for a submission that would otherwise be sent.
 async function handleSupportPost(request, env) {
-  const contentType = request.headers.get("content-type") ?? "";
-  let data;
-  if (contentType.includes("application/json")) {
-    try {
-      data = await request.json();
-    } catch {
-      return json({ ok: false, error: "invalid" }, 400);
-    }
-  } else {
-    try {
-      const form = await request.formData();
-      data = Object.fromEntries(form);
-    } catch {
-      return json({ ok: false, error: "invalid" }, 400);
-    }
-  }
+  const submission = await readSupportSubmission(request);
+  if (submission.error) return submission.error;
+  const { data, files } = submission;
 
   if (!data || typeof data !== "object" || Array.isArray(data)) {
     return json({ ok: false, error: "invalid" }, 400);
@@ -183,6 +292,9 @@ async function handleSupportPost(request, env) {
   ) {
     return json({ ok: false, error: "invalid" }, 400);
   }
+  if (attachmentError(files)) {
+    return json({ ok: false, error: "attachment" }, 400);
+  }
 
   const turnstile = await verifyTurnstile(request, env, readField(data["cf-turnstile-response"]));
   if (turnstile) return turnstile;
@@ -193,22 +305,11 @@ async function handleSupportPost(request, env) {
 
   let res;
   try {
-    res = await fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        access_key: env.WEB3FORMS_ACCESS_KEY,
-        name,
-        email,
-        ...(phone ? { phone } : {}),
-        topic: topicLabel,
-        subject: `${topicLabel}: ${subject}`,
-        message,
-      }),
-    });
+    res = await submitSupportMessage(
+      env,
+      { name, email, phone, topicLabel, subject, message },
+      files,
+    );
   } catch (error) {
     console.error(
       JSON.stringify({
@@ -236,6 +337,7 @@ async function handleSupportPost(request, env) {
     return json({ ok: false, error: "send" }, 502);
   }
 
+  await sendSupportThanks(env, name, email);
   return json({ ok: true });
 }
 

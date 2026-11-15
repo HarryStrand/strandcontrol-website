@@ -29,9 +29,10 @@
   <main id="content" class="support wrap">
     <h1 class="page-title">Support</h1>
     <p class="lede">Please let us know about any issues you are having, any suggestions you have for improvements, or any features you would like to see added.</p>
+    <p class="privacy-note">The data you provide here will only be used for support purposes and won’t be shared or used for marketing purposes.</p>
     <p class="note">If your questions, problems or suggestions involve a specific game, please mention which game you were playing (Cricket, 301, and so on). The more details you can provide, the better.</p>
 
-    <form class="contact-form" id="support-form" method="post" action="/api/support">
+    <form class="contact-form" id="support-form" method="post" action="/api/support" enctype="multipart/form-data">
       <div class="hp" aria-hidden="true">
         <label for="company">Company</label>
         <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
@@ -69,6 +70,14 @@
       <div class="field field-message">
         <label for="message">Message</label>
         <textarea id="message" name="message" rows="8" maxlength="8000" required></textarea>
+      </div>
+      <div class="field field-attachment">
+        <label for="attachment">Pictures or log files (optional)</label>
+        <div class="field-control">
+          <input type="file" id="attachment" name="attachment" accept="image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.gif,.webp,.heic,.heif,.log,.txt,.json,.crash,.ips,.zip" multiple aria-describedby="attachment-hint">
+          <ul class="attachment-list" id="attachment-list" hidden></ul>
+          <p class="field-hint" id="attachment-hint">Up to 3 files, 5 MB each. Pictures, or a log file such as .log, .txt, .json, .crash, .ips, or .zip.</p>
+        </div>
       </div>
 
       <div class="turnstile-row">

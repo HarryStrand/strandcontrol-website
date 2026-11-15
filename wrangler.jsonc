@@ -22,6 +22,15 @@
 	"vars": {
 		"TURNSTILE_SITE_KEY": "0x4AAAAAAFvu9R7-bXM_yPjL"
 	},
+	// Thank-you mail after a support message is accepted.
+	// The sender must match SUPPORT_FROM_EMAIL in src/index.js.
+	// strandcontrol.com has to be onboarded for Email Sending before this delivers.
+	"send_email": [
+		{
+			"name": "EMAIL",
+			"allowed_sender_addresses": ["support@strandcontrol.com"]
+		}
+	],
 	// Per-IP limit for POST /api/support. namespace_id must be unique in the account.
 	// The window is 60 seconds; that is the longest period this binding allows.
 	"ratelimits": [
