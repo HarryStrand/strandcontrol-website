@@ -80,11 +80,81 @@
     return base.slice(dot + 1).toLowerCase();
   }
 
+  const attachmentList = document.getElementById("attachment-list");
+  let selectedFiles = [];
+
   function chosenAttachments() {
-    const input = form.attachment;
-    if (!input || !input.files) return [];
-    return Array.from(input.files).filter((file) => file.size > 0 || file.name);
+    return selectedFiles.filter((file) => file.size > 0 || file.name);
   }
+
+  function sameFile(left, right) {
+    return left.name === right.name && left.size === right.size && left.lastModified === right.lastModified;
+  }
+
+  const attachmentLimitMessage = "You can attach up to " + maxAttachments + " files.";
+
+  function syncAttachmentInput() {
+    const input = form.attachment;
+    if (!input) return;
+    input.disabled = false;
+    const transfer = new DataTransfer();
+    selectedFiles.forEach((file) => transfer.items.add(file));
+    input.files = transfer.files;
+  }
+
+  function renderAttachments() {
+    if (!attachmentList) return;
+    attachmentList.replaceChildren();
+    const files = chosenAttachments();
+    attachmentList.hidden = files.length === 0;
+    if (form.attachment) form.attachment.disabled = files.length >= maxAttachments;
+    if (files.length < maxAttachments && status.textContent === attachmentLimitMessage) {
+      status.textContent = "";
+      status.className = "form-status";
+    }
+    files.forEach((file, index) => {
+      const item = document.createElement("li");
+      const name = document.createElement("span");
+      name.textContent = file.name;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "attachment-remove";
+      remove.setAttribute("aria-label", "Remove " + file.name);
+      remove.textContent = "\u00d7";
+      remove.addEventListener("click", () => {
+        selectedFiles = selectedFiles.filter((kept, keptIndex) => keptIndex !== index);
+        syncAttachmentInput();
+        renderAttachments();
+      });
+      item.append(name, remove);
+      attachmentList.append(item);
+    });
+  }
+
+  if (form.attachment) {
+    form.attachment.addEventListener("change", () => {
+      let skippedForLimit = false;
+      Array.from(form.attachment.files || []).forEach((file) => {
+        if (selectedFiles.some((kept) => sameFile(kept, file))) return;
+        if (selectedFiles.length >= maxAttachments) {
+          skippedForLimit = true;
+          return;
+        }
+        selectedFiles.push(file);
+      });
+      syncAttachmentInput();
+      renderAttachments();
+      if (skippedForLimit) {
+        status.textContent = attachmentLimitMessage;
+        status.className = "form-status is-error";
+      }
+    });
+  }
+
+  form.addEventListener("reset", () => {
+    selectedFiles = [];
+    window.setTimeout(renderAttachments, 0);
+  });
 
   function attachmentsLookValid(files) {
     if (files.length > maxAttachments) return false;
