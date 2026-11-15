@@ -309,6 +309,13 @@ main > .section:first-child {
   max-width: none;
 }
 
+.privacy-note {
+  margin: 1rem 0 0;
+  max-width: 44rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
 .policy h1,
 .support h1 {
   margin-top: 2.75rem;
@@ -364,7 +371,8 @@ main > .section:first-child {
   gap: var(--field-gap);
 }
 
-.contact-form .field.field-message {
+.contact-form .field.field-message,
+.contact-form .field.field-attachment {
   align-items: flex-start;
 }
 
@@ -374,9 +382,21 @@ main > .section:first-child {
   font-weight: 600;
 }
 
-.contact-form .field.field-message label {
+.contact-form .field.field-message label,
+.contact-form .field.field-attachment label {
   padding-top: 0.9rem;
   align-self: flex-start;
+}
+
+.contact-form .field-control {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.contact-form .field-hint {
+  margin: 0.45rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.98rem;
 }
 
 .contact-form .field input,
@@ -509,7 +529,8 @@ main > .section:first-child {
   }
 
   .contact-form .field label,
-  .contact-form .field-message label {
+  .contact-form .field-message label,
+  .contact-form .field-attachment label {
     flex-basis: auto;
     padding-top: 0;
   }

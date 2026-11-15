@@ -45,6 +45,7 @@
     ok: "Thanks. We received your message.",
     missing: "Please fill in every field.",
     invalid: "Please check your email and try again.",
+    attachment: "Attach pictures or log files only: up to 3 files, 5 MB each.",
     turnstile: "The spam check did not pass. Please try again.",
     rate: "Too many messages were sent from this network. Please wait a minute and try again.",
     send: "The message could not be sent. Try again in a few minutes.",
@@ -53,30 +54,79 @@
     network: "The message could not be sent. Try again in a few minutes.",
   };
 
+  // Keep in step with src/support-request.mjs.
+  const maxAttachments = 3;
+  const maxAttachmentBytes = 5 * 1024 * 1024;
+  const attachmentExtensions = new Set([
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "webp",
+    "heic",
+    "heif",
+    "log",
+    "txt",
+    "json",
+    "crash",
+    "ips",
+    "zip",
+  ]);
+
+  function attachmentExtension(name) {
+    const base = String(name || "").split(/[/\\]/).pop() || "";
+    const dot = base.lastIndexOf(".");
+    if (dot <= 0 || dot === base.length - 1) return "";
+    return base.slice(dot + 1).toLowerCase();
+  }
+
+  function chosenAttachments() {
+    const input = form.attachment;
+    if (!input || !input.files) return [];
+    return Array.from(input.files).filter((file) => file.size > 0 || file.name);
+  }
+
+  function attachmentsLookValid(files) {
+    if (files.length > maxAttachments) return false;
+    return files.every(
+      (file) =>
+        file.size > 0 &&
+        file.size <= maxAttachmentBytes &&
+        attachmentExtensions.has(attachmentExtension(file.name)),
+    );
+  }
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     status.textContent = "";
     status.className = "form-status";
 
+    const files = chosenAttachments();
+    if (!attachmentsLookValid(files)) {
+      status.textContent = messages.attachment;
+      status.classList.add("is-error");
+      return;
+    }
+
     const button = form.querySelector("button[type='submit']");
     button.disabled = true;
 
-    const payload = {
-      name: form.name.value,
-      email: form.email.value,
-      phone: form.phone.value,
-      topic: form.topic.value,
-      subject: form.subject.value,
-      message: form.message.value,
-      company: form.company.value,
-      "cf-turnstile-response": turnstileToken(),
-    };
+    const payload = new FormData();
+    payload.set("name", form.name.value);
+    payload.set("email", form.email.value);
+    payload.set("phone", form.phone.value);
+    payload.set("topic", form.topic.value);
+    payload.set("subject", form.subject.value);
+    payload.set("message", form.message.value);
+    payload.set("company", form.company.value);
+    payload.set("cf-turnstile-response", turnstileToken());
+    files.forEach((file) => payload.append("attachment", file, file.name));
 
     try {
       const res = await fetch(form.action, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(payload),
+        headers: { Accept: "application/json" },
+        body: payload,
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
