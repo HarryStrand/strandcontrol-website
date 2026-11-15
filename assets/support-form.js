@@ -16,6 +16,7 @@
   applyTopicFromUrl();
 
   let turnstileWidgetId;
+  let issuedTurnstileToken = "";
 
   function renderTurnstile() {
     const container = document.getElementById("support-turnstile");
@@ -25,6 +26,15 @@
     turnstileWidgetId = window.turnstile.render(container, {
       sitekey,
       action: "support",
+      callback: function (token) {
+        issuedTurnstileToken = typeof token === "string" ? token : "";
+      },
+      "expired-callback": function () {
+        issuedTurnstileToken = "";
+      },
+      "error-callback": function () {
+        issuedTurnstileToken = "";
+      },
     });
   }
 
@@ -32,11 +42,13 @@
   if (window.turnstile) renderTurnstile();
 
   function turnstileToken() {
+    if (issuedTurnstileToken) return issuedTurnstileToken;
     if (turnstileWidgetId === undefined || !window.turnstile) return "";
     return window.turnstile.getResponse(turnstileWidgetId) || "";
   }
 
   function resetTurnstile() {
+    issuedTurnstileToken = "";
     if (turnstileWidgetId === undefined || !window.turnstile) return;
     window.turnstile.reset(turnstileWidgetId);
   }

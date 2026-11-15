@@ -7,6 +7,7 @@ import {
   MAX_ATTACHMENT_BYTES,
   MAX_ATTACHMENTS,
   supportThanks,
+  turnstileHostnameAllowed,
 } from "../src/support-request.mjs";
 
 test("allows pictures and log files within the size cap", () => {
@@ -41,6 +42,19 @@ test("keeps a safe attachment filename", () => {
   assert.equal(attachmentFilename("../../board shot.png", 0), "board shot.png");
   assert.equal(attachmentFilename("..\r\nname.log", 1), "name.log");
   assert.equal(attachmentFilename("", 2), "attachment-3");
+});
+
+test("accepts the apex and www support hosts", () => {
+  const realKey = "0x4AAAAAAFvu9R7-bXM_yPjL";
+  const testKey = "1x00000000000000000000AA";
+  assert.equal(turnstileHostnameAllowed("strandcontrol.com", realKey, testKey), true);
+  assert.equal(turnstileHostnameAllowed("www.strandcontrol.com", realKey, testKey), true);
+  assert.equal(turnstileHostnameAllowed("WWW.strandcontrol.com.", realKey, testKey), true);
+  assert.equal(turnstileHostnameAllowed("strandcontrol.workers.dev", realKey, testKey), true);
+  assert.equal(turnstileHostnameAllowed("example.com", realKey, testKey), false);
+  assert.equal(turnstileHostnameAllowed("localhost", realKey, testKey), false);
+  assert.equal(turnstileHostnameAllowed("localhost", testKey, testKey), true);
+  assert.equal(turnstileHostnameAllowed("127.0.0.1", testKey, testKey), true);
 });
 
 test("attachments stay off unless the switch is exactly true", () => {
