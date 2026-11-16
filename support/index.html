@@ -71,7 +71,7 @@
         <label for="message">Message</label>
         <textarea id="message" name="message" rows="8" maxlength="8000" required></textarea>
       </div>
-      <div class="field field-attachment">
+      <div class="field field-attachment" id="support-attachments" hidden>
         <label for="attachment">Pictures or log files (optional)</label>
         <div class="field-control">
           <input type="file" id="attachment" name="attachment" accept="image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.gif,.webp,.heic,.heif,.log,.txt,.json,.crash,.ips,.zip" multiple aria-describedby="attachment-hint">
@@ -100,6 +100,6 @@
     </div>
   </footer>
   <script src="/assets/support-form.js" defer></script>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onSupportTurnstileLoad&render=explicit" async defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onSupportTurnstileLoad&render=explicit" defer></script>
 </body>
 </html>

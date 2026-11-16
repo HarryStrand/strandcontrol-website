@@ -1,9 +1,11 @@
 import {
   attachmentError,
   attachmentFilename,
+  attachmentsEnabled,
   MAX_ATTACHMENT_BYTES,
   MAX_ATTACHMENTS,
   supportThanks,
+  turnstileHostnameAllowed,
 } from "./support-request.mjs";
 
 // Multipart overhead sits on top of the file bytes. Reject anything larger
@@ -49,14 +51,12 @@ function looksLikePhone(value) {
 // with this value (see .dev.vars.example). The real site key never honors local hosts.
 const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA";
 const TURNSTILE_ACTION = "support";
-const TURNSTILE_HOSTS = new Set(["strandcontrol.com", "strandcontrol.workers.dev"]);
 
-function turnstileHostnameAllowed(hostname, env) {
-  if (TURNSTILE_HOSTS.has(hostname)) return true;
-  const siteKey = readField(env.TURNSTILE_SITE_KEY);
-  return (
-    siteKey === TURNSTILE_TEST_SITE_KEY &&
-    (hostname === "localhost" || hostname === "127.0.0.1")
+function turnstileHostOk(hostname, env) {
+  return turnstileHostnameAllowed(
+    hostname,
+    readField(env.TURNSTILE_SITE_KEY),
+    TURNSTILE_TEST_SITE_KEY,
   );
 }
 
@@ -91,20 +91,28 @@ async function verifyTurnstile(request, env, token) {
   }
 
   if (typeof token !== "string" || token.length === 0 || token.length > 2048) {
+    console.error(
+      JSON.stringify({
+        message: "turnstile rejected",
+        reason: token ? "token-length" : "token-missing",
+      }),
+    );
     return json({ ok: false, error: "turnstile" }, 403);
   }
 
   let result;
   try {
+    const params = new URLSearchParams({
+      secret,
+      response: token,
+    });
+    const remoteip = request.headers.get("CF-Connecting-IP");
+    if (remoteip) params.set("remoteip", remoteip);
     const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       signal: AbortSignal.timeout(10_000),
-      body: new URLSearchParams({
-        secret,
-        response: token,
-        remoteip: request.headers.get("CF-Connecting-IP") ?? "",
-      }),
+      body: params,
     });
     if (!res.ok) throw new Error("siteverify");
     result = await res.json();
@@ -129,12 +137,14 @@ async function verifyTurnstile(request, env, token) {
   if (
     result?.success !== true ||
     result.action !== TURNSTILE_ACTION ||
-    !turnstileHostnameAllowed(result.hostname, env)
+    !turnstileHostOk(result.hostname, env)
   ) {
     console.error(
       JSON.stringify({
         message: "turnstile rejected",
         errorCodes: Array.isArray(result?.["error-codes"]) ? result["error-codes"] : [],
+        hostname: typeof result?.hostname === "string" ? result.hostname : "",
+        action: typeof result?.action === "string" ? result.action : "",
       }),
     );
     return json({ ok: false, error: "turnstile" }, 403);
@@ -292,7 +302,7 @@ async function handleSupportPost(request, env) {
   ) {
     return json({ ok: false, error: "invalid" }, 400);
   }
-  if (attachmentError(files)) {
+  if (attachmentError(attachmentsEnabled(env.SUPPORT_ATTACHMENTS) ? files : [])) {
     return json({ ok: false, error: "attachment" }, 400);
   }
 
@@ -308,7 +318,7 @@ async function handleSupportPost(request, env) {
     res = await submitSupportMessage(
       env,
       { name, email, phone, topicLabel, subject, message },
-      files,
+      attachmentsEnabled(env.SUPPORT_ATTACHMENTS) ? files : [],
     );
   } catch (error) {
     console.error(
@@ -338,6 +348,9 @@ async function handleSupportPost(request, env) {
   }
 
   await sendSupportThanks(env, name, email);
+  if (!attachmentsEnabled(env.SUPPORT_ATTACHMENTS) && files.length > 0) {
+    return json({ ok: true, attachments: "unavailable" });
+  }
   return json({ ok: true });
 }
 
@@ -375,13 +388,24 @@ async function serveAsset(request, env) {
   if (path !== "/support") return response;
   const contentType = response.headers.get("content-type") || "";
   if (!response.ok || !contentType.includes("text/html")) return response;
+
+  let rewriter = new HTMLRewriter();
   const siteKey = readField(env.TURNSTILE_SITE_KEY);
-  if (!siteKey) return response;
-  return new HTMLRewriter()
-    .on("#support-turnstile", {
+  if (siteKey) {
+    rewriter = rewriter.on("#support-turnstile", {
       element(element) {
         element.setAttribute("data-sitekey", siteKey);
       },
-    })
-    .transform(response);
+    });
+  }
+  // The file field ships hidden. Web3Forms only accepts attachments on Pro,
+  // and the access key cannot be asked which plan it is on.
+  if (attachmentsEnabled(env.SUPPORT_ATTACHMENTS)) {
+    rewriter = rewriter.on("#support-attachments", {
+      element(element) {
+        element.removeAttribute("hidden");
+      },
+    });
+  }
+  return rewriter.transform(response);
 }

@@ -19,6 +19,27 @@ const ATTACHMENT_EXTENSIONS = new Set([
   "zip",
 ]);
 
+export function attachmentsEnabled(value) {
+  return String(value ?? "").trim().toLowerCase() === "true";
+}
+
+// Hostnames where the support widget is allowed to run. www and the apex both
+// serve the site, and Turnstile reports whichever host the visitor actually used.
+const TURNSTILE_HOSTS = new Set([
+  "strandcontrol.com",
+  "www.strandcontrol.com",
+  "strandcontrol.workers.dev",
+]);
+
+export function turnstileHostnameAllowed(hostname, siteKey, testSiteKey) {
+  const host = String(hostname ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\.$/, "");
+  if (TURNSTILE_HOSTS.has(host)) return true;
+  return siteKey === testSiteKey && (host === "localhost" || host === "127.0.0.1");
+}
+
 export function attachmentExtension(name) {
   const base = String(name ?? "").split(/[/\\]/).pop() ?? "";
   const dot = base.lastIndexOf(".");

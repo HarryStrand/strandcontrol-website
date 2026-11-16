@@ -25,7 +25,7 @@ npx wrangler dev
 - Production (`main`): `npx wrangler deploy`
 - Other branches: `npx wrangler versions upload`
 
-Static files are served from the repo root. `POST /api/support` is handled by `src/index.js`, which forwards a valid message to [Web3Forms](https://web3forms.com/). Pictures or log files (up to 3, 5 MB each) are sent with that message. After Web3Forms accepts it, the Worker emails the address on the form to say thanks and that we’ll reply as soon as we can. `/dartopia/` is `dartopia/index.html`. The same pattern is used for `/privacy/` and `/support/`. A request without the trailing slash redirects to the slash form. Unknown paths return `404.html`.
+Static files are served from the repo root. `POST /api/support` is handled by `src/index.js`, which forwards a valid message to [Web3Forms](https://web3forms.com/). File attachments stay hidden until `SUPPORT_ATTACHMENTS` is `true`. After Web3Forms accepts a message, the Worker emails the address on the form to say thanks and that we’ll reply as soon as we can. `/dartopia/` is `dartopia/index.html`. The same pattern is used for `/privacy/` and `/support/`. A request without the trailing slash redirects to the slash form. Unknown paths return `404.html`.
 
 ### `WEB3FORMS_ACCESS_KEY`
 
@@ -39,7 +39,11 @@ Or from the repo root:
 npx wrangler secret put WEB3FORMS_ACCESS_KEY
 ```
 
-`wrangler secret put` creates a new version and deploys it immediately. Until the secret exists, a valid `POST /api/support` returns `503` with `{ "ok": false, "error": "not-configured" }`. File attachments need the Web3Forms Pro plan. A message with no attachment still sends on the existing path.
+`wrangler secret put` creates a new version and deploys it immediately. Until the secret exists, a valid `POST /api/support` returns `503` with `{ "ok": false, "error": "not-configured" }`. A message with no attachment sends on the free Web3Forms plan.
+
+### Attachments
+
+Web3Forms only accepts file uploads on the Pro plan, and an access key cannot be asked which plan it is on. The file field stays hidden while `SUPPORT_ATTACHMENTS` is `false`. After upgrading that key to Pro, set the var to `true` in `wrangler.jsonc` and deploy. The field then allows up to 3 pictures or log files, 5 MB each. If a message includes files while the var is still `false`, the text is sent and the files are left off.
 
 ### Thank-you email
 
