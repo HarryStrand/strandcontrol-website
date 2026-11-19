@@ -338,7 +338,7 @@ async function handleSupportPost(request, env) {
     result = {};
   }
 
-  if (!res.ok || result.success === false) {
+  if (!res.ok || result.success !== true) {
     console.error(
       JSON.stringify({
         message: "support submit failed",
