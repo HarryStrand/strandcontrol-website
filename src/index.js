@@ -198,13 +198,16 @@ async function readSupportSubmission(request) {
 }
 
 async function submitSupportMessage(env, fields, files) {
+  // Web3Forms uses `subject` as the email subject and leaves it out of the
+  // body. The same line is sent as the topic, which does appear in the email.
+  const subjectLine = `${fields.topicLabel}: ${fields.subject}`;
   const payload = {
     access_key: env.WEB3FORMS_ACCESS_KEY,
     name: fields.name,
     email: fields.email,
     ...(fields.phone ? { phone: fields.phone } : {}),
-    topic: fields.topicLabel,
-    subject: `${fields.topicLabel}: ${fields.subject}`,
+    topic: subjectLine,
+    subject: subjectLine,
     message: fields.message,
   };
 
