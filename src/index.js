@@ -277,7 +277,8 @@ async function handleSupportPost(request, env) {
   const limited = await enforceSupportRateLimit(request, env);
   if (limited) return limited;
 
-  if (readField(data.company)) {
+  if (readField(data.sc_hp)) {
+    console.error(JSON.stringify({ message: "support submission skipped by honeypot" }));
     return json({ ok: true });
   }
 

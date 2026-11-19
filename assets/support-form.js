@@ -201,7 +201,7 @@
     payload.set("topic", form.topic.value);
     payload.set("subject", form.subject.value);
     payload.set("message", form.message.value);
-    payload.set("company", form.company.value);
+    payload.set("sc_hp", form.sc_hp.value);
     payload.set("cf-turnstile-response", turnstileToken());
     files.forEach((file) => payload.append("attachment", file, file.name));
 
