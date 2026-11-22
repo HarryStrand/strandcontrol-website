@@ -8,9 +8,10 @@
 		// Static site lives at the repo root. No build step.
 		"directory": "./",
 		"binding": "ASSETS",
-		// /api/* runs the Worker. Every other path is served from assets.
-		// /support is included so the Worker can stamp TURNSTILE_SITE_KEY onto the form.
-		"run_worker_first": ["/api/*", "/support", "/support/", "/support/index.html"],
+		// Every request runs the Worker so HTML can be translated from Accept-Language,
+		// including the 404 page. CSS, images, and scripts are returned unchanged.
+		// /support still gets the Turnstile site key stamped onto the form.
+		"run_worker_first": true,
 		// Unmatched paths return 404.html with status 404.
 		"not_found_handling": "404-page",
 		// /dartopia/ (and /privacy/, /support/) serve that folder's index.html.

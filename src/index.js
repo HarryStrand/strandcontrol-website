@@ -1,3 +1,4 @@
+import { negotiatedLanguage, stringsFor, supportMessages } from "./i18n.mjs";
 import {
   attachmentError,
   attachmentFilename,
@@ -386,30 +387,97 @@ export default {
   },
 };
 
-async function serveAsset(request, env) {
-  const response = await env.ASSETS.fetch(request);
-  const path = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
-  if (path !== "/support") return response;
-  const contentType = response.headers.get("content-type") || "";
-  if (!response.ok || !contentType.includes("text/html")) return response;
+function isSupportDocument(url) {
+  const path = new URL(url).pathname.replace(/\/+$/, "") || "/";
+  return path === "/support" || path === "/support/index.html";
+}
 
-  let rewriter = new HTMLRewriter();
-  const siteKey = readField(env.TURNSTILE_SITE_KEY);
-  if (siteKey) {
-    rewriter = rewriter.on("#support-turnstile", {
-      element(element) {
-        element.setAttribute("data-sitekey", siteKey);
-      },
-    });
+function withLanguageHeaders(response, lang) {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Language", lang);
+  const vary = headers.get("Vary");
+  const listed = (vary || "")
+    .split(",")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+  if (!listed.includes("accept-language")) {
+    headers.set("Vary", vary ? `${vary}, Accept-Language` : "Accept-Language");
   }
-  // The file field ships hidden. Web3Forms only accepts attachments on Pro,
-  // and the access key cannot be asked which plan it is on.
-  if (attachmentsEnabled(env.SUPPORT_ATTACHMENTS)) {
-    rewriter = rewriter.on("#support-attachments", {
-      element(element) {
-        element.removeAttribute("hidden");
-      },
-    });
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+function rewriteHtml(response, env, lang, supportDocument) {
+  let rewriter = new HTMLRewriter();
+  const strings = lang === "en" ? null : stringsFor(lang);
+  if (strings) {
+    const messages = JSON.stringify(supportMessages(lang)).replaceAll("<", "\\u003c");
+    rewriter = rewriter
+      .on("html", {
+        element(element) {
+          element.setAttribute("lang", lang);
+        },
+      })
+      .on("[data-i18n]", {
+        element(element) {
+          const value = strings[element.getAttribute("data-i18n")];
+          if (typeof value === "string") element.setInnerContent(value);
+        },
+      })
+      .on("[data-i18n-aria]", {
+        element(element) {
+          const value = strings[element.getAttribute("data-i18n-aria")];
+          if (typeof value === "string") element.setAttribute("aria-label", value);
+        },
+      })
+      .on("[data-i18n-content]", {
+        element(element) {
+          const value = strings[element.getAttribute("data-i18n-content")];
+          if (typeof value === "string") element.setAttribute("content", value);
+        },
+      })
+      .on("head", {
+        element(element) {
+          element.append(
+            `<script type="application/json" id="support-messages">${messages}</script>`,
+            { html: true },
+          );
+        },
+      });
+  }
+  if (supportDocument) {
+    const siteKey = readField(env.TURNSTILE_SITE_KEY);
+    if (siteKey) {
+      rewriter = rewriter.on("#support-turnstile", {
+        element(element) {
+          element.setAttribute("data-sitekey", siteKey);
+        },
+      });
+    }
+    // The file field ships hidden. Web3Forms only accepts attachments on Pro,
+    // and the access key cannot be asked which plan it is on.
+    if (attachmentsEnabled(env.SUPPORT_ATTACHMENTS)) {
+      rewriter = rewriter.on("#support-attachments", {
+        element(element) {
+          element.removeAttribute("hidden");
+        },
+      });
+    }
   }
   return rewriter.transform(response);
+}
+
+async function serveAsset(request, env) {
+  const response = await env.ASSETS.fetch(request);
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("text/html")) return response;
+
+  const lang = negotiatedLanguage(request.url, request.headers.get("Accept-Language"));
+  const supportDocument = isSupportDocument(request.url);
+  const output =
+    lang === "en" && !supportDocument ? response : rewriteHtml(response, env, lang, supportDocument);
+  return withLanguageHeaders(output, lang);
 }

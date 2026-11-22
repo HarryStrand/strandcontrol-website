@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Support — StrandControl</title>
-  <meta name="description" content="Contact StrandControl for Dartopia support.">
+  <title data-i18n="form.title">Support — StrandControl</title>
+  <meta name="description" data-i18n-content="form.description" content="Contact StrandControl for Dartopia support.">
   <link rel="canonical" href="https://strandcontrol.com/support">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -14,69 +14,69 @@
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body class="theme-studio">
-  <a class="skip" href="#content">Skip to content</a>
+  <a class="skip" href="#content" data-i18n="nav.skip">Skip to content</a>
   <header class="site-header">
     <div class="wrap">
       <a class="brand" href="/" aria-label="StrandControl"><img src="/assets/strandcontrol-logo.png" width="800" height="253" alt="StrandControl"></a>
-      <nav aria-label="Primary">
+      <nav aria-label="Primary" data-i18n-aria="nav.primary">
         <a href="/dartopia">Dartopia</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/support" aria-current="page">Support</a>
+        <a href="/privacy" data-i18n="nav.privacy">Privacy</a>
+        <a href="/support" aria-current="page" data-i18n="nav.support">Support</a>
       </nav>
     </div>
   </header>
 
   <main id="content" class="support wrap">
-    <h1 class="page-title">Support</h1>
-    <p class="lede">Please let us know about any issues you are having, any suggestions you have for improvements, or any features you would like to see added.</p>
-    <p class="privacy-note">The data you provide here will only be used for support purposes and won’t be shared or used for marketing purposes.</p>
-    <p class="note">If your questions, problems or suggestions involve a specific game, please mention which game you were playing (Cricket, 301, and so on). The more details you can provide, the better.</p>
+    <h1 class="page-title" data-i18n="form.heading">Support</h1>
+    <p class="lede" data-i18n="form.lede">Please let us know about any issues you are having, any suggestions you have for improvements, or any features you would like to see added.</p>
+    <p class="privacy-note" data-i18n="form.privacyNote">The data you provide here will only be used for support purposes and won’t be shared or used for marketing purposes.</p>
+    <p class="note" data-i18n="form.note">If your questions, problems or suggestions involve a specific game, please mention which game you were playing (Cricket, 301, and so on). The more details you can provide, the better.</p>
 
     <form class="contact-form" id="support-form" method="post" action="/api/support" enctype="multipart/form-data">
       <div class="hp" aria-hidden="true">
-        <label for="sc_hp">Leave blank</label>
+        <label for="sc_hp" data-i18n="form.blank">Leave blank</label>
         <input type="text" id="sc_hp" name="sc_hp" tabindex="-1" autocomplete="off" readonly>
       </div>
 
       <div class="field">
-        <label for="name">Name</label>
+        <label for="name" data-i18n="form.name">Name</label>
         <input type="text" id="name" name="name" maxlength="200" required autocomplete="name">
       </div>
       <div class="field">
-        <label for="email">Email</label>
+        <label for="email" data-i18n="form.email">Email</label>
         <input type="email" id="email" name="email" maxlength="200" required autocomplete="email">
       </div>
       <div class="field">
-        <label for="phone">Phone number (optional)</label>
+        <label for="phone" data-i18n="form.phone">Phone number (optional)</label>
         <input type="tel" id="phone" name="phone" maxlength="40" autocomplete="tel">
       </div>
       <div class="field">
-        <label for="topic">What can we help with?</label>
+        <label for="topic" data-i18n="form.topic">What can we help with?</label>
         <select id="topic" name="topic" required>
-          <option value="general" selected>General feedback</option>
-          <option value="help">Help using the product</option>
-          <option value="problem">Problem with the product</option>
-          <option value="improvement">Suggest an improvement</option>
-          <option value="feature">Request a new feature</option>
-          <option value="comments">Comments about the product</option>
-          <option value="privacy">Privacy question or concern</option>
-          <option value="other">Other</option>
+          <option value="general" selected data-i18n="form.general">General feedback</option>
+          <option value="help" data-i18n="form.help">Help using the product</option>
+          <option value="problem" data-i18n="form.problem">Problem with the product</option>
+          <option value="improvement" data-i18n="form.improvement">Suggest an improvement</option>
+          <option value="feature" data-i18n="form.feature">Request a new feature</option>
+          <option value="comments" data-i18n="form.comments">Comments about the product</option>
+          <option value="privacy" data-i18n="form.privacy">Privacy question or concern</option>
+          <option value="other" data-i18n="form.other">Other</option>
         </select>
       </div>
       <div class="field">
-        <label for="subject">Subject</label>
+        <label for="subject" data-i18n="form.subject">Subject</label>
         <input type="text" id="subject" name="subject" maxlength="200" required>
       </div>
       <div class="field field-message">
-        <label for="message">Message</label>
+        <label for="message" data-i18n="form.message">Message</label>
         <textarea id="message" name="message" rows="8" maxlength="8000" required></textarea>
       </div>
       <div class="field field-attachment" id="support-attachments" hidden>
-        <label for="attachment">Pictures or log files (optional)</label>
+        <label for="attachment" data-i18n="form.files">Pictures or log files (optional)</label>
         <div class="field-control">
           <input type="file" id="attachment" name="attachment" accept="image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.gif,.webp,.heic,.heif,.log,.txt,.json,.crash,.ips,.zip" multiple aria-describedby="attachment-hint">
           <ul class="attachment-list" id="attachment-list" hidden></ul>
-          <p class="field-hint" id="attachment-hint">Up to 3 files, 5 MB each. Pictures, or a log file such as .log, .txt, .json, .crash, .ips, or .zip.</p>
+          <p class="field-hint" id="attachment-hint" data-i18n="form.filesHint">Up to 3 files, 5 MB each. Pictures, or a log file such as .log, .txt, .json, .crash, .ips, or .zip.</p>
         </div>
       </div>
 
@@ -84,7 +84,7 @@
         <div id="support-turnstile" data-sitekey="0x4AAAAAAFvu9R7-bXM_yPjL"></div>
       </div>
       <div class="field-actions">
-        <button type="submit">Send</button>
+        <button type="submit" data-i18n="form.send">Send</button>
       </div>
       <p class="form-status" id="support-status" role="status" aria-live="polite"></p>
     </form>
@@ -93,9 +93,9 @@
   <footer class="site-footer">
     <div class="wrap">
       <small>© 2026 StrandControl, LLC</small>
-      <nav aria-label="Footer">
+      <nav aria-label="Footer" data-i18n-aria="nav.footer">
         <a href="/dartopia">Dartopia</a>
-        <a href="/privacy">Privacy</a>
+        <a href="/privacy" data-i18n="nav.privacy">Privacy</a>
       </nav>
     </div>
   </footer>

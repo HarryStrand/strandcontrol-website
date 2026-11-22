@@ -65,7 +65,18 @@
     offline: "This preview cannot send mail. Publish to Cloudflare and add the WEB3FORMS_ACCESS_KEY secret first.",
     network: "The message could not be sent. Try again in a few minutes.",
     attachmentsUnavailable: "Your message was sent. File attachments are not available.",
+    limit: "You can attach up to 3 files.",
+    remove: "Remove {name}",
   };
+  const injected = document.getElementById("support-messages");
+  if (injected && injected.textContent) {
+    try {
+      const extra = JSON.parse(injected.textContent);
+      if (extra && typeof extra === "object") Object.assign(messages, extra);
+    } catch {
+      // Keep the English sentences above.
+    }
+  }
 
   // Keep in step with src/support-request.mjs.
   const maxAttachments = 3;
@@ -104,7 +115,7 @@
     return left.name === right.name && left.size === right.size && left.lastModified === right.lastModified;
   }
 
-  const attachmentLimitMessage = "You can attach up to " + maxAttachments + " files.";
+  const attachmentLimitMessage = messages.limit;
 
   function syncAttachmentInput() {
     const input = form.attachment;
@@ -132,7 +143,7 @@
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "attachment-remove";
-      remove.setAttribute("aria-label", "Remove " + file.name);
+      remove.setAttribute("aria-label", messages.remove.replaceAll("{name}", file.name));
       remove.textContent = "\u00d7";
       remove.addEventListener("click", () => {
         selectedFiles = selectedFiles.filter((kept, keptIndex) => keptIndex !== index);
