@@ -226,13 +226,8 @@ main > .section:first-child {
 }
 
 .app-card p {
-  margin: 0 0 0.85rem;
+  margin: 0;
   color: var(--ink-soft);
-}
-
-.app-card .go {
-  font-weight: 600;
-  color: var(--accent);
 }
 
 .wordmark {
@@ -268,6 +263,15 @@ main > .section:first-child {
 .features dd {
   margin: 0;
   color: var(--ink-soft);
+}
+
+.features dd ul {
+  margin: 0.2rem 0 0;
+  padding-left: 1.15rem;
+}
+
+.features dd li + li {
+  margin-top: 0.3rem;
 }
 
 .theme-dart .features dd {
