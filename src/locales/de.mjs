@@ -36,7 +36,7 @@ export default {
   "dartopia.accountNames": "Namen, Fotos und Punkte bleiben auf dem Gerät",
   "dartopia.accountData": "Spieldaten verlassen das lokale Netzwerk nicht und werden lokal auf dem Gerät gespeichert",
   "dartopia.games": "Spiele",
-  "dartopia.gamesLede": "Cricket und 301 sind kostenlos. Weitere Spiele schaltest du mit einem einmaligen Kauf von Alle Spiele freischalten frei.",
+  "dartopia.gamesLede": "Cricket und 301 sind kostenlos. Weitere Spiele bekommst du mit dem einmaligen Kauf „Alle Spiele freischalten“.",
   "dartopia.x01": "301 und weitere x01",
   "dartopia.around": "Rund um die Uhr",
   "dartopia.half": "Halve-it",
