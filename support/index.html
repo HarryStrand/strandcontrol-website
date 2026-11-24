@@ -7,10 +7,8 @@
   <meta name="description" data-i18n-content="form.description" content="Contact StrandControl for Dartopia support.">
   <link rel="canonical" href="https://strandcontrol.com/support">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/favicon.png" type="image/png" sizes="512x512">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Source+Sans+3:wght@400;600;650&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body class="theme-studio">
@@ -29,7 +27,7 @@
   <main id="content" class="support wrap">
     <h1 class="page-title" data-i18n="form.heading">Support</h1>
     <p class="lede" data-i18n="form.lede">Please let us know about any issues you are having, any suggestions you have for improvements, or any features you would like to see added.</p>
-    <p class="privacy-note" data-i18n="form.privacyNote">The data you provide here will only be used for support purposes and won’t be shared or used for marketing purposes.</p>
+    <p class="privacy-note"><span data-i18n="form.privacyNote">We use what you send to answer you. Web3Forms and Cloudflare process it for that, and we do not use it for marketing.</span> <a href="/privacy" data-i18n="form.privacyPolicy">Privacy policy</a></p>
     <p class="note" data-i18n="form.note">If your questions, problems or suggestions involve a specific game, please mention which game you were playing (Cricket, 301, and so on). The more details you can provide, the better.</p>
 
     <form class="contact-form" id="support-form" method="post" action="/api/support" enctype="multipart/form-data">
@@ -96,6 +94,7 @@
       <nav aria-label="Footer" data-i18n-aria="nav.footer">
         <a href="/dartopia">Dartopia</a>
         <a href="/privacy" data-i18n="nav.privacy">Privacy</a>
+        <a href="/impressum">Impressum</a>
       </nav>
     </div>
   </footer>
