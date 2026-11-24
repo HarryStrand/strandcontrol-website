@@ -377,24 +377,59 @@ export default {
   async fetch(request, env) {
     const pathname = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
 
+    let response;
     if (pathname === "/api/support") {
-      if (request.method === "POST") return handleSupportPost(request, env);
-      if (request.method === "OPTIONS") return handleSupportOptions();
-      return methodNotAllowed();
+      if (request.method === "POST") response = await handleSupportPost(request, env);
+      else if (request.method === "OPTIONS") response = handleSupportOptions();
+      else response = methodNotAllowed();
+    } else {
+      response = await serveAsset(request, env);
     }
-
-    return serveAsset(request, env);
+    return withTransportSecurity(request, response);
   },
 };
 
+function documentPath(url) {
+  return new URL(url).pathname.replace(/\/+$/, "") || "/";
+}
+
 function isSupportDocument(url) {
-  const path = new URL(url).pathname.replace(/\/+$/, "") || "/";
+  const path = documentPath(url);
   return path === "/support" || path === "/support/index.html";
 }
 
-function withLanguageHeaders(response, lang) {
+function isPrivacyDocument(url) {
+  const path = documentPath(url);
+  return path === "/privacy" || path === "/privacy/index.html";
+}
+
+function isImpressumDocument(url) {
+  const path = documentPath(url);
+  return path === "/impressum" || path === "/impressum/index.html";
+}
+
+function withTransportSecurity(request, response) {
+  if (new URL(request.url).protocol !== "https:") return response;
   const headers = new Headers(response.headers);
-  headers.set("Content-Language", lang);
+  if (!headers.has("Strict-Transport-Security")) {
+    headers.set("Strict-Transport-Security", "max-age=15552000");
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+function contentLanguage(lang, privacyDocument, impressumDocument) {
+  if (impressumDocument) return lang === "de" || lang === "en" ? "de" : `de, ${lang}`;
+  if (privacyDocument && lang !== "en") return `en, ${lang}`;
+  return lang;
+}
+
+function withLanguageHeaders(response, lang, privacyDocument, impressumDocument) {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Language", contentLanguage(lang, privacyDocument, impressumDocument));
   const vary = headers.get("Vary");
   const listed = (vary || "")
     .split(",")
@@ -410,7 +445,7 @@ function withLanguageHeaders(response, lang) {
   });
 }
 
-function rewriteHtml(response, env, lang, supportDocument) {
+function rewriteHtml(response, env, lang, supportDocument, impressumDocument) {
   let rewriter = new HTMLRewriter();
   const strings = lang === "en" ? null : stringsFor(lang);
   if (strings) {
@@ -418,7 +453,7 @@ function rewriteHtml(response, env, lang, supportDocument) {
     rewriter = rewriter
       .on("html", {
         element(element) {
-          element.setAttribute("lang", lang);
+          if (!impressumDocument) element.setAttribute("lang", lang);
         },
       })
       .on("[data-i18n]", {
@@ -477,7 +512,11 @@ async function serveAsset(request, env) {
 
   const lang = negotiatedLanguage(request.url, request.headers.get("Accept-Language"));
   const supportDocument = isSupportDocument(request.url);
+  const privacyDocument = isPrivacyDocument(request.url);
+  const impressumDocument = isImpressumDocument(request.url);
   const output =
-    lang === "en" && !supportDocument ? response : rewriteHtml(response, env, lang, supportDocument);
-  return withLanguageHeaders(output, lang);
+    lang === "en" && !supportDocument
+      ? response
+      : rewriteHtml(response, env, lang, supportDocument, impressumDocument);
+  return withLanguageHeaders(output, lang, privacyDocument, impressumDocument);
 }
