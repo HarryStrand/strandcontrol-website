@@ -17,7 +17,7 @@ export default {
   "dartopia.description": "Dartopia je místní aplikace na počítání šipek pro Cricket, 301 a další hry. iPhone, iPad a Apple TV. Bez účtu. Bez reklam.",
   "dartopia.lede": "Počítej Cricket, 301 a další na iPhonu nebo iPadu. Počítej na dálku z jiných iPhonů nebo iPadů. Sleduj hru na Apple TV v místní síti. Všechna data jsou na tvých zařízeních a zůstávají v tvé místní síti.",
   "dartopia.devices": "iPhone, iPad a Apple TV",
-  "dartopia.soon": "Již brzy v App Store",
+  "dartopia.badge": "Stáhnout v App Store",
   "dartopia.manage": "Snadno zvládni velkou skupinu hráčů",
   "dartopia.any": "Libovolný počet hráčů",
   "dartopia.saved": "Uložení hráči a jejich statistiky",

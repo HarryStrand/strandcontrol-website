@@ -17,7 +17,7 @@ export default {
   "dartopia.description": "Dartopia is een lokale darttel-app voor Cricket, 301 en extra spellen. iPhone, iPad en Apple TV. Geen account. Geen advertenties.",
   "dartopia.lede": "Tel Cricket, 301 en meer op een iPhone of iPad. Tel op afstand vanaf andere iPhones of iPads. Volg het spel op Apple TV’s in het lokale netwerk. Alle gegevens blijven op je apparaten en in je lokale netwerk.",
   "dartopia.devices": "iPhone, iPad en Apple TV",
-  "dartopia.soon": "Binnenkort in de App Store",
+  "dartopia.badge": "Download in de App Store",
   "dartopia.manage": "Beheer makkelijk een grote groep spelers",
   "dartopia.any": "Elk aantal spelers",
   "dartopia.saved": "Opgeslagen spelers met hun statistieken",

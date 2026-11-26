@@ -17,7 +17,7 @@ export default {
   "dartopia.description": "Dartopia to lokalna aplikacja do liczenia lotek: Cricket, 301 i dodatkowe gry. iPhone, iPad i Apple TV. Bez konta. Bez reklam.",
   "dartopia.lede": "Licz Cricket, 301 i inne gry na iPhonie lub iPadzie. Licz zdalnie z innych iPhone’ów lub iPadów. Śledź grę na Apple TV w sieci lokalnej. Wszystkie dane są na Twoich urządzeniach i zostają w Twojej sieci lokalnej.",
   "dartopia.devices": "iPhone, iPad i Apple TV",
-  "dartopia.soon": "Wkrótce w App Store",
+  "dartopia.badge": "Pobierz w App Store",
   "dartopia.manage": "Łatwo prowadź dużą grupę graczy",
   "dartopia.any": "Dowolna liczba graczy",
   "dartopia.saved": "Zapisani gracze i ich statystyki",

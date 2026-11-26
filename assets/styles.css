@@ -300,6 +300,21 @@ main > .section:first-child {
   color: var(--dart-muted);
 }
 
+.store-badge {
+  margin: 1.35rem 0 0;
+}
+
+.store-badge a {
+  display: inline-block;
+  line-height: 0;
+}
+
+.store-badge img {
+  display: block;
+  height: 3.25rem;
+  width: auto;
+}
+
 .features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));

@@ -17,7 +17,7 @@ export default {
   "dartopia.description": "Dartopia ist eine lokale Dart-Zähl-App für Cricket, 301 und weitere Spiele. iPhone, iPad und Apple TV. Kein Konto. Keine Werbung.",
   "dartopia.lede": "Zähle Cricket, 301 und mehr auf einem iPhone oder iPad. Zähle aus der Ferne von anderen iPhones oder iPads. Verfolge das Spiel auf Apple TVs im lokalen Netzwerk. Alle Daten bleiben auf deinen Geräten und in deinem lokalen Netzwerk.",
   "dartopia.devices": "iPhone, iPad und Apple TV",
-  "dartopia.soon": "Demnächst im App Store",
+  "dartopia.badge": "Laden im App Store",
   "dartopia.manage": "Eine große Spielergruppe leicht im Griff",
   "dartopia.any": "Beliebig viele Spieler",
   "dartopia.saved": "Gespeicherte Spieler mit ihren Statistiken",

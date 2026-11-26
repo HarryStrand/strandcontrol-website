@@ -17,7 +17,7 @@ export default {
   "dartopia.description": "Dartopia es una app local para anotar dardos: Cricket, 301 y más juegos. iPhone, iPad y Apple TV. Sin cuenta. Sin anuncios.",
   "dartopia.lede": "Anota Cricket, 301 y más en un iPhone o iPad. Anota a distancia desde otros iPhone o iPad. Sigue la partida en Apple TV de la red local. Todos los datos se guardan en tus dispositivos y se quedan en tu red local.",
   "dartopia.devices": "iPhone, iPad y Apple TV",
-  "dartopia.soon": "Pronto en el App Store",
+  "dartopia.badge": "Consíguelo en el App Store",
   "dartopia.manage": "Gestiona con facilidad un grupo grande de jugadores",
   "dartopia.any": "Cualquier número de jugadores",
   "dartopia.saved": "Jugadores guardados con sus estadísticas",

@@ -17,7 +17,7 @@ export default {
   "dartopia.description": "Dartopia est une app locale de score de fléchettes pour Cricket, 301 et d’autres jeux. iPhone, iPad et Apple TV. Pas de compte. Pas de pub.",
   "dartopia.lede": "Compte Cricket, 301 et plus sur un iPhone ou un iPad. Compte à distance depuis d’autres iPhone ou iPad. Suis la partie sur des Apple TV du réseau local. Toutes les données restent sur tes appareils et dans ton réseau local.",
   "dartopia.devices": "iPhone, iPad et Apple TV",
-  "dartopia.soon": "Bientôt sur l’App Store",
+  "dartopia.badge": "Télécharger dans l’App Store",
   "dartopia.manage": "Gère facilement un grand groupe de joueurs",
   "dartopia.any": "Autant de joueurs que tu veux",
   "dartopia.saved": "Joueurs enregistrés avec leurs stats",

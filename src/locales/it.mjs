@@ -17,7 +17,7 @@ export default {
   "dartopia.description": "Dartopia è un’app locale per segnare le freccette: Cricket, 301 e altri giochi. iPhone, iPad e Apple TV. Nessun account. Nessuna pubblicità.",
   "dartopia.lede": "Segna Cricket, 301 e altro su un iPhone o iPad. Segna a distanza da altri iPhone o iPad. Segui la partita sugli Apple TV della rete locale. Tutti i dati restano sui tuoi dispositivi e nella tua rete locale.",
   "dartopia.devices": "iPhone, iPad e Apple TV",
-  "dartopia.soon": "Presto sull’App Store",
+  "dartopia.badge": "Scarica su App Store",
   "dartopia.manage": "Gestisci facilmente un gruppo numeroso di giocatori",
   "dartopia.any": "Qualsiasi numero di giocatori",
   "dartopia.saved": "Giocatori salvati con le loro statistiche",

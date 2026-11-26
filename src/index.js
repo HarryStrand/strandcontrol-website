@@ -474,6 +474,20 @@ function rewriteHtml(response, env, lang, supportDocument, impressumDocument) {
           if (typeof value === "string") element.setAttribute("content", value);
         },
       })
+      .on("[data-i18n-alt]", {
+        element(element) {
+          const value = strings[element.getAttribute("data-i18n-alt")];
+          if (typeof value === "string") element.setAttribute("alt", value);
+        },
+      })
+      .on("[data-store-badge]", {
+        element(element) {
+          const variant = element.getAttribute("data-store-badge");
+          if (variant === "black" || variant === "white") {
+            element.setAttribute("src", `/assets/app-store/${variant}/${lang}.svg`);
+          }
+        },
+      })
       .on("head", {
         element(element) {
           element.append(

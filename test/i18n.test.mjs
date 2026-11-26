@@ -26,7 +26,7 @@ function htmlFiles(directory) {
 
 function keysInHtml() {
   const keys = new Set();
-  const pattern = /data-i18n(?:-aria|-content)?="([^"]+)"/g;
+  const pattern = /data-i18n(?:-aria|-content|-alt)?="([^"]+)"/g;
   for (const file of htmlFiles(root.pathname)) {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(pattern)) keys.add(match[1]);
